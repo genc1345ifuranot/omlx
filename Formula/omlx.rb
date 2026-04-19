@@ -27,6 +27,7 @@ class Omlx < Formula
     working_dir var
     log_path var/"log/omlx.log"
     error_log_path var/"log/omlx.log"
+    # Keep PATH explicit so the venv python is always reachable by the service
     environment_variables PATH: std_service_path_env
   end
 
@@ -40,6 +41,9 @@ class Omlx < Formula
     # not need Homebrew's dylib ID rewrite, and building from source fails on
     # macOS 15+ due to PyO3 linker errors (missing Python symbols at link time).
     ENV.append "LDFLAGS", "-Wl,-headerpad_max_install_names"
+
+    # Upgrade pip first to avoid issues with older bundled pip in Python 3.11
+    system libexec/"bin/pip", "install", "--upgrade", "pip"
 
     # Install omlx (with optional grammar extra for structured output)
     install_spec = build.with?("grammar") ? "#{buildpath}[grammar]" : buildpath.to_s
